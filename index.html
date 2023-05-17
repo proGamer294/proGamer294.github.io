@@ -20,51 +20,84 @@
   <!-- See https://khanacademy.zendesk.com/hc/en-us/articles/202260404-What-parts-of-ProcessingJS-does-Khan-Academy-support- for differences -->
   <script src="https://cdn.jsdelivr.net/processing.js/1.4.8/processing.min.js"></script> 
   <script>
+  var p = false;
+  var input = [];
+  body.addEventListener("keydown", function(e) {
+      console.log(e.key);
+                if(e.key === "ArrowUp") {
+                    input[38] = true;
+                }
+                if(e.key==="ArrowDown") {
+                    input[40] = true;
+                }
+                if(e.key==="ArrowLeft") {
+                    input[37] = true;
+                }
+                if(e.key==="ArrowRight"){
+                    input[39] = true;
+                }
+                if(e.key===" "){
+                    input[32] = true;
+                }
+                if(e.key==="w") {
+                    input[87] = true;
+                }
+                if(e.key==="a") {
+                    input[65] = true;
+                }
+                if(e.key==="a") {
+                    input[83] = true;
+                }
+                if(e.key==="d") {
+                    input[68] = true;
+                }
+                if(e.key==="p") {
+                    input[80] = true;
+                }
+                p = true;
+            });
+            
+            body.addEventListener("keyup", function(e) {
+                if(e.key === "ArrowUp") {
+                    input[38] = false;
+                }
+                if(e.key==="ArrowDown") {
+                    input[40] = false;
+                }
+                if(e.key==="ArrowLeft") {
+                    input[37] = false;
+                }
+                if(e.key==="ArrowRight"){
+                    input[39] = false;
+                }
+                if(e.key===" "){
+                    input[32] = false;
+                }
+                if(e.key==="w") {
+                    input[87] = false;
+                }
+                if(e.key==="a") {
+                    input[65] = false;
+                }
+                if(e.key==="a") {
+                    input[83] = false;
+                }
+                if(e.key==="d") {
+                    input[68] = false;
+                }
+                if(e.key==="p") {
+                    input[80] = false;
+                }
+            });
+  
   var programCode = function(processingInstance) {
     with (processingInstance) {
       size(600, 600); 
-      frameRate(60);
-      console.log("good");
+      frameRate(30);
+      
       // Paste code from Khan Academy here:
       //{
-      /**
-
-@HOW_TO_PLAY
-Press "P" to switch perspectives!
-Use WASD to move around
-Use the left and right arrow keys to look around
-Press the spacebar to jump
-
-Avoid falling or toucing red blocks
-Get to the green block to win!
-
-I am submitting this for two contests:
-Contest: New Perspectives, and Contest: 3D
-
-100% 3D in javascript, no P3D or HTML
-
-@FOR_THE_JUDGES
-{
-        
-                Contest: New Perspectives
-    
-         I have completed 100% of Khan Academy's 
-        'Intro to JS' and have been programming 
-                    for 35 months.
-    
-          I would prefer to be placed in the
-                     [Advanced]
-                       bracket
-
-
-All code was made by me after this contest
-except some of the code inside the rotate3D
-function (line 64) which I borrowed from here:
-
-https://www.khanacademy.org/computing/computer-programming/programming-games-visualizations/programming-3d-shapes/a/rotating-3d-shapes
-
-}
-**/
+ 
 
 var cam = {
     x: 0,
@@ -78,11 +111,6 @@ var cam = {
 };
 
 var resetLevel;
-
-var p = false;
-var input = [];
-function keyPressed() {input[keyCode] = true;p=true;}
-function keyReleased() {input[keyCode] = false;}
 
 function collide(obj1, obj2) {
     return obj1.x + obj1.w > obj2.x && obj1.x < obj2.x + obj2.w && obj1.y + obj1.h > obj2.y && obj1.y < obj2.y + obj2.h && obj1.z + obj1.d > obj2.z && obj1.z < obj2.z + obj2.d;
@@ -378,17 +406,17 @@ Player.prototype.update = function() {
         }
     }
     
-    if(input[LEFT]) {
-        this.rot -= 2;
+    if(input[37]) {
+        this.rot -= 0.1;
     }
-    if(input[RIGHT]) {
-        this.rot += 2;
+    if(input[39]) {
+        this.rot += 0.1;
     }
-    if(input[UP]) {
+    if(input[38]) {
         //cam.zRot += sin(this.rot);
         //cam.xRot += cos(this.rot);
     }
-    if(input[DOWN]) {
+    if(input[40]) {
         //cam.zRot -= sin(this.rot);
         //cam.xRot -= cos(this.rot);
     }
