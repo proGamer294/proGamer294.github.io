@@ -21,6 +21,7 @@
   <script src="https://cdn.jsdelivr.net/processing.js/1.4.8/processing.min.js"></script> 
   <script>
   var p = false;
+
   var input = [];
   body.addEventListener("keydown", function(e) {
       console.log(e.key);
@@ -119,14 +120,14 @@ function collide(obj1, obj2) {
 //this function permanently rotates a set of nodes
 //example: [[x, y, z], [x, y, z]]
 function rotate3D(nodes, XRotation, YRotation, ZRotation, X, Y, Z) {
-    var sinXRotation = sin(XRotation);
-    var cosXRotation = cos(XRotation);
+    var sinXRotation = Math.sin(XRotation);
+    var cosXRotation = Math.cos(XRotation);
     
-    var sinYRotation = sin(YRotation);
-    var cosYRotation = cos(YRotation);
+    var sinYRotation = Math.sin(YRotation);
+    var cosYRotation = Math.cos(YRotation);
     
-    var sinZRotation = sin(ZRotation);
-    var cosZRotation = cos(ZRotation);
+    var sinZRotation = Math.sin(ZRotation);
+    var cosZRotation = Math.cos(ZRotation);
     
     for (var i = 0; i < nodes.length; i++) {
         var node = nodes[i];
@@ -341,16 +342,16 @@ Player.prototype.update = function() {
     }
     
     if(input[87]) {
-        this.z += cos(this.rot)*this.speed;
+        this.z += Math.scos(this.rot)*this.speed;
     }
     if(input[83]) {
-        this.z -= cos(this.rot)*this.speed;
+        this.z -= Math.scos(this.rot)*this.speed;
     }
     if(input[65]) {
-        this.z += sin(this.rot)*this.speed;
+        this.z += Math.ssin(this.rot)*this.speed;
     }
     if(input[68]) {
-        this.z -= sin(this.rot)*this.speed;
+        this.z -= Math.ssin(this.rot)*this.speed;
     }
     
     for(var i = 0; i < blocks.length; i++) {
@@ -374,16 +375,16 @@ Player.prototype.update = function() {
     }
     
     if(input[87]) {
-        this.x += sin(this.rot)*this.speed;
+        this.x += Math.sin(this.rot)*this.speed;
     }
     if(input[83]) {
-        this.x -= sin(this.rot)*this.speed;
+        this.x -= Math.sin(this.rot)*this.speed;
     }
     if(input[65]) {
-        this.x -= cos(this.rot)*this.speed;
+        this.x -= Math.cos(this.rot)*this.speed;
     }
     if(input[68]) {
-        this.x += cos(this.rot)*this.speed;
+        this.x += Math.cos(this.rot)*this.speed;
     }
     
     for(var i = 0; i < blocks.length; i++) {
@@ -427,9 +428,9 @@ Player.prototype.update = function() {
         cam.z = this.z+this.d/2;
     }
     if(this.POV === 2) {
-        cam.x = this.x+this.w/2+(sin(this.rot+180)*250);
+        cam.x = this.x+this.w/2+(Math.sin(this.rot+180)*250);
         cam.y = this.y-50;
-        cam.z = this.z+this.d/2+(cos(this.rot+180)*250);
+        cam.z = this.z+this.d/2+(Math.cos(this.rot+180)*250);
     }
     cam.yRot = this.rot;
     
