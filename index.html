@@ -7,7 +7,7 @@
             margin: 0px;
             padding: 0px;
             border: none;
-            color: white;
+            background-color: black;
         }
     </style>
   </head>
@@ -22,19 +22,587 @@
   <script>
   var programCode = function(processingInstance) {
     with (processingInstance) {
-      size(window.innerWidth, window.innerHeight); 
-      frameRate(30);
-      
+      size(600, 600); 
+      frameRate(60);
+      console.log("good");
       // Paste code from Khan Academy here:
-      fill(255, 255, 0);
-      ellipse(200, 200, 200, 200);
-      noFill();
-      stroke(0, 0, 0);
-      strokeWeight(2);
-      arc(200, 200, 150, 100, 0, PI);
-      fill(0, 0, 0);
-      ellipse(250, 200, 10, 10);
-      ellipse(153, 200, 10, 10);
+      //{
+      /**
+
+@HOW_TO_PLAY
+Press "P" to switch perspectives!
+Use WASD to move around
+Use the left and right arrow keys to look around
+Press the spacebar to jump
+
+Avoid falling or toucing red blocks
+Get to the green block to win!
+
+I am submitting this for two contests:
+Contest: New Perspectives, and Contest: 3D
+
+100% 3D in javascript, no P3D or HTML
+
+@FOR_THE_JUDGES
+{
+        
+                Contest: New Perspectives
+    
+         I have completed 100% of Khan Academy's 
+        'Intro to JS' and have been programming 
+                    for 35 months.
+    
+          I would prefer to be placed in the
+                     [Advanced]
+                       bracket
+
+
+All code was made by me after this contest
+except some of the code inside the rotate3D
+function (line 64) which I borrowed from here:
+
+https://www.khanacademy.org/computing/computer-programming/programming-games-visualizations/programming-3d-shapes/a/rotating-3d-shapes
+
+}
+**/
+
+var cam = {
+    x: 0,
+    y: 0,
+    z: 0,
+    xRot: 0,
+    yRot: 0,
+    zRot: 0,
+    FOV: 600,
+    zoom: 200,
+};
+
+var resetLevel;
+
+var p = false;
+var input = [];
+function keyPressed() {input[keyCode] = true;p=true;}
+function keyReleased() {input[keyCode] = false;}
+
+function collide(obj1, obj2) {
+    return obj1.x + obj1.w > obj2.x && obj1.x < obj2.x + obj2.w && obj1.y + obj1.h > obj2.y && obj1.y < obj2.y + obj2.h && obj1.z + obj1.d > obj2.z && obj1.z < obj2.z + obj2.d;
+}
+
+//this function permanently rotates a set of nodes
+//example: [[x, y, z], [x, y, z]]
+function rotate3D(nodes, XRotation, YRotation, ZRotation, X, Y, Z) {
+    var sinXRotation = sin(XRotation);
+    var cosXRotation = cos(XRotation);
+    
+    var sinYRotation = sin(YRotation);
+    var cosYRotation = cos(YRotation);
+    
+    var sinZRotation = sin(ZRotation);
+    var cosZRotation = cos(ZRotation);
+    
+    for (var i = 0; i < nodes.length; i++) {
+        var node = nodes[i];
+        
+        node[0] -= X;
+        node[1] -= Y;
+        node[2] -= Z;
+        
+        var x = node[0];
+        var y = node[1];
+        node[0] = x * cosZRotation - y * sinZRotation;
+        node[1] = y * cosZRotation + x * sinZRotation;
+        
+        var y = node[1];
+        var z = node[2];
+        node[1] = y * cosXRotation - z * sinXRotation;
+        node[2] = z * cosXRotation + y * sinXRotation;
+        
+        var x = node[0];
+        var z = node[2];
+        node[0] = x * cosYRotation + z * sinYRotation;
+        node[2] = z * cosYRotation - x * sinYRotation;
+        
+        node[0] += X;
+        node[1] += Y;
+        node[2] += Z;
+    }
+}
+function YMXB(x1, y1, x2, y2, x) {
+    var M = (y2 - y1) / (x2 - x1);
+    
+    var B = y1 - (x1 * M);
+    
+    var X = x;
+    
+    var Y = M*X + B;
+    
+    return Y;
+}
+
+//this function draws a 3D line on the screeen
+function drawLine(n1, n2) {
+    var node1 = Object.assign([], n1);
+    var node2 = Object.assign([], n2);
+    
+    rotate3D([node1, node2], -cam.xRot, -cam.yRot, -cam.zRot, cam.x, cam.y, cam.z);
+    
+    var d = cam.zoom;
+    
+    if(node1[2] <cam.z+d && node2[2] < cam.z+d) {
+        return;
+    }
+    
+    if(node1[2] >cam.z+d && node2[2] > cam.z+d) {
+        var x1 = YMXB(cam.z, cam.x, node1[2], node1[0], cam.z+cam.zoom)-cam.x;
+        x1 *= width/cam.FOV;
+        x1 += cam.FOV/2;
+        
+        var y1 = YMXB(cam.z, cam.y, node1[2], node1[1], cam.z+cam.zoom)-cam.y;
+        y1 *= height/cam.FOV;
+        y1 += cam.FOV/2;
+        
+        var x2 = YMXB(cam.z, cam.x, node2[2], node2[0], cam.z+cam.zoom)-cam.x;
+        x2 *= width/cam.FOV;
+        x2 += cam.FOV/2;
+        
+        var y2 = YMXB(cam.z, cam.y, node2[2], node2[1], cam.z+cam.zoom)-cam.y;
+        y2 *= height/cam.FOV;
+        y2 += cam.FOV/2;
+        
+        line(x1, y1, x2, y2);
+    } else if(node1[2]>cam.z+d&&node2[2]<cam.z+d) {
+        var x1 = YMXB(cam.z, cam.x, node1[2], node1[0], cam.z+cam.zoom)-cam.x;
+        x1 *= width/cam.FOV;
+        x1 += cam.FOV/2;
+        
+        var y1 = YMXB(cam.z, cam.y, node1[2], node1[1], cam.z+cam.zoom)-cam.y;
+        y1 *= height/cam.FOV;
+        y1 += cam.FOV/2;
+        
+        var x2 = YMXB(node1[2], node1[0], node2[2], node2[0], cam.z+cam.zoom)-cam.x;
+        x2 *= width/cam.FOV;
+        x2 += cam.FOV/2;
+        
+        var y2 = YMXB(node1[2], node1[1], node2[2], node2[1], cam.z+cam.zoom)-cam.y;
+        y2 *= height/cam.FOV;
+        y2 += cam.FOV/2;
+        
+        line(x1, y1, x2, y2);
+    } else if(node1[2]<cam.z+d&&node2[2]>cam.z+d) {
+        var x1 = YMXB(node2[2], node2[0], node1[2], node1[0], cam.z+cam.zoom)-cam.x;
+        x1 *= width/cam.FOV;
+        x1 += cam.FOV/2;
+        
+        var y1 = YMXB(node2[2], node2[1], node1[2], node1[1], cam.z+cam.zoom)-cam.y;
+        y1 *= height/cam.FOV;
+        y1 += cam.FOV/2;
+        
+        var x2 = YMXB(cam.z, cam.x, node2[2], node2[0], cam.z+cam.zoom)-cam.x;
+        x2 *= width/cam.FOV;
+        x2 += cam.FOV/2;
+        
+        var y2 = YMXB(cam.z, cam.y, node2[2], node2[1], cam.z+cam.zoom)-cam.y;
+        y2 *= height/cam.FOV;
+        y2 += cam.FOV/2;
+        
+        line(x1, y1, x2, y2);
+    }
+}
+
+var blocks = [];
+var level = 1;
+
+function Block(x, y, z, w, h, d, type) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+    this.w = w;
+    this.h = h;
+    this.d = d;
+    this.type = type;
+    
+    if(this.type === "b") {
+        this.c = color(0+random(0, 50), 145+random(0, 50), 255);
+    }
+}
+Block.prototype.display = function() {
+    strokeWeight(2);
+    if(this.type === "b") {
+        stroke(this.c);
+    }
+    if(this.type === "l") {
+        stroke(255, 0, 0);
+    }
+    if(this.type === "p") {
+        stroke(0, 255, 0);
+    }
+    
+    drawLine([this.x, this.y, this.z], [this.x+this.w, this.y, this.z]);
+    drawLine([this.x, this.y, this.z], [this.x, this.y+this.h, this.z]);
+    drawLine([this.x+this.w, this.y, this.z], [this.x+this.w, this.y+this.h, this.z]);
+    drawLine([this.x, this.y+this.h, this.z], [this.x+this.w, this.y+this.h, this.z]);
+    
+    drawLine([this.x, this.y, this.z+this.d], [this.x+this.w, this.y, this.z+this.d]);
+    drawLine([this.x, this.y, this.z+this.d], [this.x, this.y+this.h, this.z+this.d]);
+    drawLine([this.x+this.w,this.y,this.z+this.d],[this.x+this.w,this.y+this.h,this.z+this.d]);
+    drawLine([this.x,this.y+this.h,this.z+this.d],[this.x+this.w,this.y+this.h,this.z+this.d]);
+    
+    
+    drawLine([this.x, this.y, this.z], [this.x, this.y, this.z+this.d]);
+    drawLine([this.x+this.w, this.y, this.z], [this.x+this.w, this.y, this.z+this.d]);
+    drawLine([this.x, this.y+this.h, this.z], [this.x, this.y+this.h, this.z+this.d]);
+    drawLine([this.x+this.w, this.y+this.h,this.z],[this.x+this.w,this.y+this.h,this.z+this.d]);
+};
+
+function Player(x, y, z) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+    
+    this.px = x;
+    this.py = y;
+    this.pz = z;
+    
+    this.w = 25;
+    this.h = 200;
+    this.d = 25;
+    
+    this.rot = 0;
+    
+    this.speed = 2;
+    
+    this.gravity = 0.18;
+    this.fallingSpeed = 0;
+    this.canJump = false;
+    
+    this.POV = 2;
+}
+Player.prototype.update = function() {
+    this.px = this.x;
+    this.py = this.y;
+    this.pz = this.z;
+    
+    this.fallingSpeed += this.gravity;
+    this.y += this.fallingSpeed;
+    
+    if(this.y+this.h > 1000) {
+        resetLevel();
+    }
+    
+    for(var i = 0; i < blocks.length; i++) {
+        var b = blocks[i];
+        
+        if(collide(this, b)) {
+            this.fallingSpeed = 0;
+            
+            if(b.type === "l") {
+                resetLevel();
+            }
+            if(b.type === "p") {
+                level++;
+                resetLevel();
+            }
+            
+            if(this.py < b.y) {
+                this.y = b.y - this.h;
+                this.canJump = true;
+            } else {
+                this.y = b.y + b.h;
+            }
+        }
+    }
+    
+    if(input[87]) {
+        this.z += cos(this.rot)*this.speed;
+    }
+    if(input[83]) {
+        this.z -= cos(this.rot)*this.speed;
+    }
+    if(input[65]) {
+        this.z += sin(this.rot)*this.speed;
+    }
+    if(input[68]) {
+        this.z -= sin(this.rot)*this.speed;
+    }
+    
+    for(var i = 0; i < blocks.length; i++) {
+        var b = blocks[i];
+        
+        if(collide(this, b)) {
+            if(b.type === "l") {
+                resetLevel();
+            }
+            if(b.type === "p") {
+                level++;
+                resetLevel();
+            }
+            
+            if(this.pz < b.z) {
+                this.z = b.z - this.d;
+            } else {
+                this.z = b.z + b.d;
+            }
+        }
+    }
+    
+    if(input[87]) {
+        this.x += sin(this.rot)*this.speed;
+    }
+    if(input[83]) {
+        this.x -= sin(this.rot)*this.speed;
+    }
+    if(input[65]) {
+        this.x -= cos(this.rot)*this.speed;
+    }
+    if(input[68]) {
+        this.x += cos(this.rot)*this.speed;
+    }
+    
+    for(var i = 0; i < blocks.length; i++) {
+        var b = blocks[i];
+        
+        if(collide(this, b)) {
+            if(b.type === "l") {
+                resetLevel();
+            }
+            if(b.type === "p") {
+                level++;
+                resetLevel();
+            }
+            
+            if(this.px < b.x) {
+                this.x = b.x - this.w;
+            } else {
+                this.x = b.x + b.w;
+            }
+        }
+    }
+    
+    if(input[LEFT]) {
+        this.rot -= 2;
+    }
+    if(input[RIGHT]) {
+        this.rot += 2;
+    }
+    if(input[UP]) {
+        //cam.zRot += sin(this.rot);
+        //cam.xRot += cos(this.rot);
+    }
+    if(input[DOWN]) {
+        //cam.zRot -= sin(this.rot);
+        //cam.xRot -= cos(this.rot);
+    }
+    
+    if(this.POV === 1) {
+        cam.x = this.x+this.w/2;
+        cam.y = this.y;
+        cam.z = this.z+this.d/2;
+    }
+    if(this.POV === 2) {
+        cam.x = this.x+this.w/2+(sin(this.rot+180)*250);
+        cam.y = this.y-50;
+        cam.z = this.z+this.d/2+(cos(this.rot+180)*250);
+    }
+    cam.yRot = this.rot;
+    
+    if(input[80] && p) {
+        this.POV = this.POV > 1 ? 1: 2;
+    }
+    
+    if(input[32] && this.canJump) {
+        this.fallingSpeed = -10;
+    }
+    
+    this.canJump = false;
+};
+Player.prototype.display = function() {
+    if(this.POV === 2) {
+        stroke(179, 0, 255);
+        drawLine([this.x, this.y, this.z], [this.x+this.w, this.y, this.z]);
+        drawLine([this.x, this.y, this.z], [this.x, this.y+this.h, this.z]);
+        drawLine([this.x+this.w, this.y, this.z], [this.x+this.w, this.y+this.h, this.z]);
+        drawLine([this.x, this.y+this.h, this.z], [this.x+this.w, this.y+this.h, this.z]);
+        
+        drawLine([this.x, this.y, this.z+this.d], [this.x+this.w, this.y, this.z+this.d]);
+        drawLine([this.x, this.y, this.z+this.d], [this.x, this.y+this.h, this.z+this.d]);
+        drawLine([this.x+this.w,this.y,this.z+this.d],[this.x+this.w,this.y+this.h,this.z+this.d]);
+        drawLine([this.x,this.y+this.h,this.z+this.d],[this.x+this.w,this.y+this.h,this.z+this.d]);
+        
+        
+        drawLine([this.x, this.y, this.z], [this.x, this.y, this.z+this.d]);
+        drawLine([this.x+this.w, this.y, this.z], [this.x+this.w, this.y, this.z+this.d]);
+        drawLine([this.x, this.y+this.h, this.z], [this.x, this.y+this.h, this.z+this.d]);
+        drawLine([this.x+this.w, this.y+this.h,this.z],[this.x+this.w,this.y+this.h,this.z+this.d]);
+    }
+};
+
+var player = new Player(0, 0, 0);
+
+function sortBlocks() {
+    blocks.sort(function(a, b) {
+        var aDist = dist(a.w/2+a.x, a.h/2+a.y, cam.x, cam.y)+dist(a.w/2+a.x, a.d/2+a.z, cam.x, cam.z)+dist(a.h/2+a.y, a.d/2+a.z, cam.y, cam.z);
+        var bDist = dist(b.w/2+b.x, b.h/2+b.y, cam.x, cam.y)+dist(b.w/2+b.x, b.d/2+b.z, cam.x, cam.z)+dist(b.h/2+b.y, b.d/2+b.z, cam.y, cam.z);
+        return bDist-aDist;
+    });
+}
+
+resetLevel = function() {
+    blocks = [];
+    player.x = 0;
+    player.y = 0;
+    player.z = 0;
+    player.rot = 0;
+    
+    if(level > 3) {
+        println("YOU WIN!");
+        level = 1;
+    }
+    
+    if(level === 1) {
+    blocks.push(new Block(-200, 500, -200, 400, 50, 400, "b"));
+    blocks.push(new Block(-200, 500, 300, 400, 50, 400, "b"));
+    blocks.push(new Block(-200, 500, 800, 200, 50, 200, "b"));
+    blocks.push(new Block(-500, 500, 800, 200, 50, 200, "b"));
+    blocks.push(new Block(-700, 400, 800, 200, 50, 200, "b"));
+    blocks.push(new Block(-900, 300, 800, 200, 50, 200, "b"));
+    blocks.push(new Block(-900, 200, 100, 200, 50, 600, "b"));
+    blocks.push(new Block(-900, -200, 500, 200, 400, 50, "b"));
+    blocks.push(new Block(-600, 100, 100, 200, 50, 200, "b"));
+    blocks.push(new Block(-300, 0, 100, 800, 50, 200, "b"));
+    blocks.push(new Block(100, -50, 100, 50, 50, 200, "l"));
+    blocks.push(new Block(500, 0, 100, 200, 50, 200, "p"));
+    }
+    if(level === 2) {
+    blocks.push(new Block(-200,500, -200, 400, 50, 2200, "b"));
+    blocks.push(new Block(-200,500,2000, 400, 50, 400, "p"));
+    }
+    if(level === 3) {
+    blocks.push(new Block(-200, 500, -200, 400, 50, 400, "b"));
+    
+    blocks.push(new Block(-600, 500, 200, 400, 50, 400, "b"));
+    blocks.push(new Block(200, 500, 200, 400, 50, 400, "b"));
+    
+    blocks.push(new Block(-200, 400, 750, 400, 50, 400, "b"));
+    blocks.push(new Block(-25, 400, 1300, 50, 50, 50, "b"));
+    blocks.push(new Block(-25, 300, 1500, 50, 50, 50, "b"));
+    blocks.push(new Block(-25, 200, 1700, 50, 50, 50, "b"));
+    blocks.push(new Block(-25, 100, 1900, 50, 50, 50, "b"));
+    blocks.push(new Block(-25, 100, 1950, 1225, 50, 200, "b"));
+    
+    blocks.push(new Block(100, -100, 1950, 50, 200, 50, "l"));
+    blocks.push(new Block(250, -100, 2050, 50, 200, 50, "l"));
+    
+    blocks.push(new Block(350, 50, 2100, 50, 50, 50, "l"));
+    blocks.push(new Block(350, 50, 1950, 50, 50, 50, "l"));
+    blocks.push(new Block(400, 50, 2050, 50, 50, 50, "l"));
+    blocks.push(new Block(550, 50, 1974, 50, 50, 50, "l"));
+    blocks.push(new Block(600, 50, 2031, 50, 50, 50, "l"));
+    
+    blocks.push(new Block(1200, 100, 1950, 200, 50, 200, "p"));
+    }
+}
+
+resetLevel();
+
+draw = function() {
+    background(0, 0, 0);
+    
+    sortBlocks();
+    
+    stroke(255, 0, 0);
+    var s = 100;
+    for(var i = 0; i < 10000/s; i++) {
+        drawLine([i*s-5000, 1000, -5000], [i*s-5000, 1000, 10000-5000]); 
+        drawLine([-5000, 1000, i*s-5000], [10000-5000, 1000, i*s-5000]);
+    }
+    
+    if(level === 2) {
+        stroke(255, 255, 255);
+        
+        //h
+        drawLine([-800, -800, 1000], [-800, -400, 1000]);
+        drawLine([-700, -800, 1000], [-700, -400, 1000]);
+        drawLine([-800, -600, 1000], [-700, -600, 1000]);
+        
+        //a
+        drawLine([-500, -800, 1000], [-600, -400, 1000]);
+        drawLine([-500, -800, 1000], [-400, -400, 1000]);
+        drawLine([-540, -627, 1000], [-470, -627, 1000]);
+        
+        //p
+        drawLine([-300, -800, 1000], [-300, -400, 1000]);
+        drawLine([-300, -800, 1000], [-200, -800, 1000]);
+        drawLine([-300, -600, 1000], [-200, -600, 1000]);
+        drawLine([-200, -800, 1000], [-200, -600, 1000]);
+        
+        //p
+        drawLine([-100, -800, 1000], [-100, -400, 1000]);
+        drawLine([-100, -800, 1000], [0, -800, 1000]);
+        drawLine([-100, -600, 1000], [0, -600, 1000]);
+        drawLine([0, -800, 1000], [0, -600, 1000]);
+        
+        //y
+        drawLine([200, -600, 1000], [200, -400, 1000]);
+        drawLine([200, -600, 1000], [100, -800, 1000]);
+        drawLine([200, -600, 1000], [300, -800, 1000]);
+        
+        //b
+        drawLine([-800, 200, 1000], [-800, -200, 1000]);
+        drawLine([-700, 180, 1000], [-700, 40, 1000]);
+        drawLine([-700, -40, 1000], [-700, -180, 1000]);
+        drawLine([-800, 200, 1000], [-700, 180, 1000]);
+        drawLine([-750, 0, 1000], [-700, 40, 1000]);
+        drawLine([-750, 0, 1000], [-700, -40, 1000]);
+        drawLine([-800, -200, 1000], [-700, -180, 1000]);
+        
+        //i
+        drawLine([-500, -200, 1000], [-500, 200, 1000]);
+        drawLine([-600, -200, 1000], [-400, -200, 1000]);
+        drawLine([-600, 200, 1000], [-400, 200, 1000]);
+        
+        //r
+        drawLine([-300, -200, 1000], [-300, 200, 1000]);
+        drawLine([-300, -200, 1000], [-200, -200, 1000]);
+        drawLine([-200, 0, 1000], [-200, -200, 1000]);
+        drawLine([-200, 0, 1000], [-300, 0, 1000]);
+        drawLine([-150, 200, 1000], [-250, 0, 1000]);
+        
+        //t
+        drawLine([0, 200, 1000], [0, -200, 1000]);
+        drawLine([-75, -200, 1000], [75, -200, 1000]);
+        
+        //h
+        drawLine([200, 200, 1000], [200, -200, 1000]);
+        drawLine([300, 200, 1000], [300, -200, 1000]);
+        drawLine([200, 0, 1000], [300, 0, 1000]);
+        
+        //d
+        drawLine([400, 200, 1000], [400, -200, 1000]);
+        drawLine([400, 200, 1000], [500, 100, 1000]);
+        drawLine([400, -200, 1000], [500, -100, 1000]);
+        drawLine([500, 100, 1000], [500, -100, 1000]);
+        
+        //a
+        drawLine([600, 200, 1000], [700, -200, 1000]);
+        drawLine([800, 200, 1000], [700, -200, 1000]);
+        drawLine([660, 0, 1000], [740, 0, 1000]);
+        
+        //y
+        drawLine([950, 200, 1000], [950, 0, 1000]);
+        drawLine([850, -200, 1000], [950, 0, 1000]);
+        drawLine([1050, -200, 1000], [950, 0, 1000]);
+    }
+    
+    for(var i = 0; i < blocks.length; i++) {
+        blocks[i].display();
+    }
+    
+    player.display();
+    player.update();
+    
+    p = false;
+};//}
+
     }};
 
   // Get the canvas that ProcessingJS will use
